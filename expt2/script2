@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#Script to execute the tcl script and the python code for every TCP Variant and CBR rate
+
+echo "-------------Reno/Reno----------------"
+echo "CBR      	      Throughput                        Latency         	   Packet Drop Rate"
+echo "CBR		t1		t2		l1		l2		d1		d2"	
+a=(1 2 3 4 5 5.5 6 6.5 7 7.5 8 8.5 9 9.3 9.6 9.8 10)
+for i in ${a[@]}
+do
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg2.tcl Reno Reno $i
+printf $i
+./pyth2
+done
+
+echo "==========================================================================================="
+echo "-------------NewReno/Reno----------------"
+echo "CBR             Throughput                        Latency                    Packet Drop Rate"
+echo "CBR               t1              t2              l1              l2              d1              d2"
+a=(1 2 3 4 5 5.5 6 6.5 7 7.5 8 8.5 9 9.3 9.6 9.8 10)
+for i in ${a[@]}
+do
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg2.tcl Newreno Reno $i
+printf $i
+./pyth2
+done
+
+echo "==========================================================================================="
+echo "-------------Vegas/Vegas----------------"
+echo "CBR             Throughput                        Latency                    Packet Drop Rate"
+echo "CBR               t1              t2              l1              l2              d1              d2"
+a=(1 2 3 4 5 5.5 6 6.5 7 7.5 8 8.5 9 9.3 9.6 9.8 10)
+for i in ${a[@]}
+do
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg2.tcl Vegas Vegas $i
+printf $i
+./pyth2
+done
+
+echo "==========================================================================================="
+echo "-------------NewReno/Vegas----------------"
+echo "CBR             Throughput                        Latency                    Packet Drop Rate"
+echo "CBR               t1              t2              l1              l2              d1              d2"
+a=(1 2 3 4 5 5.5 6 6.5 7 7.5 8 8.5 9 9.3 9.6 9.8 10)
+for i in ${a[@]}
+do
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg2.tcl Newreno Vegas $i
+printf $i
+./pyth2
+done

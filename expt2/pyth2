@@ -1,0 +1,146 @@
+#!/usr/bin/python
+
+import os
+
+#Computing Throughput
+def throughput():
+        trace = open('pra2.tr').readlines()
+        count1 = 0
+	count2 = 0
+        totalBits1 = 0
+	totalBits2 = 0
+        for line in trace:
+                tru = line.split()
+                event = tru[0]
+                time = float(tru[1])
+                source = tru[2]
+                size = int(tru[5])
+                fid = tru[7]
+                #Computing for TCP Variant 1
+		if fid == '1':
+                        if event == '+' and source == '2':
+                                if(count1 == 0):
+                                        startTime1 = time
+                                        count1 +=  1
+                        if event == 'r':
+                                totalBits1 += 8 *size
+                                endTime1 = time
+		#Computing for TCP Variant 2
+		if fid == '2':
+                        if event == '+' and source == '2':
+                                if(count2 == 0):
+                                        startTime2 = time
+                                        count2 +=  1
+                        if event == 'r':
+                                totalBits2 += 8 *size
+                                endTime2 = time
+        duration1 = endTime1 - startTime1
+	duration2 = endTime2 - startTime2
+	#Throughput of TCP Variant 1
+        th1 = str(totalBits1/duration1/(1024*1024))
+	#Throughput of TCP Variant 2
+	th2 = str(totalBits2/duration2/(1024*1024))
+	return (th1,th2)
+
+#Computing Latency
+def latency():
+        tlat1 = 0.0
+	tlat2 = 0.0
+        no1 = 0
+	no2 = 0
+        t_send1 = {}
+        t_arr1 = {}
+	t_send2 = {}
+	t_arr2 = {}
+        trace = open('pra2.tr').readlines()
+        for line in trace:
+                tru = line.split()
+                event = tru[0]
+                time = float(tru[1])
+		source = tru[2]
+		destn = tru[3]
+                fid = tru[7]
+                seq = (tru[10])
+                #Computing for TCP Variant 1
+		if fid == '1':
+                        if event == '+' and source == "0":
+                                t_send1.update({seq: time})
+                        if event == 'r' and destn == "0":
+                                t_arr1.update({seq: time})
+		#Computing for TCP Variant 2
+		if fid == '2':
+                        if event == '+' and source == "4":
+                                t_send2.update({seq: time})
+                        if event == 'r' and destn == "4":
+                                t_arr2.update({seq: time})
+	#Computing for TCP Variant 1
+        pack1 = {x for x in t_send1.viewkeys() if x in t_arr1.viewkeys()}
+	for i in pack1:
+                start = t_send1[i]
+                end = t_arr1[i]
+                duration = end - start
+                if duration > 0:
+                        tlat1 += duration
+                        no1 += 1
+	#Computing for TCP Variant 2
+	pack2 = {x for x in t_send2.viewkeys() if x in t_arr2.viewkeys()}
+        for i in pack2:
+                star = t_send2[i]
+                en = t_arr2[i]
+                dur = en - star
+                if dur > 0:
+                        tlat2 += dur
+                        no2 += 1
+
+	#Latency of TCP Variant 1
+	avg_lat1 = (tlat1/no1)*100
+	la1 = str(avg_lat1)
+
+	#Latency of TCP Variant 2
+	avg_lat2 = (tlat2/no2)*100
+	la2 = str(avg_lat2)
+
+	return (la1,la2)
+
+#Computing Droprate
+def droprate():
+        recvdSize1 = 0
+	recvdSize2 = 0
+        total1  = 0
+	total2  = 0
+        drop1 = 0
+	drop2 = 0
+        trace = open('pra2.tr').readlines()
+        for line in trace:
+                tru = line.split()
+                event = tru[0]
+                fid = tru[7]
+		#Computing for TCP Variant 1
+		if fid == '1':
+                	if event == 'd':
+                        	drop1 += 1
+                	if event == '+':
+                        	total1 += 1
+		#Computing for TCP Variant 2
+		if fid == '2':
+                        if event == 'd':
+                                drop2 += 1
+                        if event == '+':
+                                total2 += 1
+
+	#Packet Droprate of TCP Variant 1
+        pd1 = str((float(drop1)/float(total1))*100)
+
+	#Packet Droprate of TCP Variant 2
+	pd2 = str((float(drop2)/float(total2))*100)
+	return (pd1 , pd2)
+
+
+t1,t2 = throughput()
+l1, l2 = latency()
+d1 ,d2 = droprate()
+
+print  "\t" + t1 + "\t" + t2 + "\t" + l1 + "\t"+ l2 + "\t"+ d1 + "\t" + d2
+
+#Deleting the trace file
+os.system("rm *.tr")

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#Script to execute the tcl script and the python code for the TCP Variants and the Queuing Disciplines
+echo "-------------Reno/RED----------------"
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg3.tcl Reno RED
+./pyth3
+
+echo "==========================================================================================="
+echo "-------------Reno/ DropTail----------------"
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg3.tcl Reno DropTail
+./pyth3
+
+echo "==========================================================================================="
+echo "-------------Sack1/RED----------------"
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg3.tcl Sack1 RED
+./pyth3
+
+echo "==========================================================================================="
+echo "-------------Sack1/DropTail----------------"
+/course/cs4700f12/ns-allinone-2.35/ns-2.35/ns eg3.tcl Sack1 DropTail
+./pyth3
+

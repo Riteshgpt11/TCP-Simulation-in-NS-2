@@ -1,0 +1,96 @@
+#!/usr/bin/python
+
+import os
+
+#Computing Throughput
+def throughput():
+        trace = open('pra3.tr').readlines()
+	totalBits1 = 0
+	totalBits2 = 0
+        clock = 0.0
+	g = 0.5
+	for line in trace:
+                tru = line.split()
+                event = tru[0]
+                time = float(tru[1])
+                source = tru[2]
+                destn = tru[3]
+		type = tru[4]
+		size = int(tru[5])
+                fid = tru[7]
+		saddr = tru[8]
+                daddr = tru[9]
+		#Computing for TCP Varaint
+		if fid == '1' and event == 'r': 
+                           totalBits1 += 8 *size
+
+		#Computing for CBR
+		if fid == '2' and event == 'r': 
+                           totalBits2 += 8*size
+		if time - clock <= g:
+			pass
+		else:
+			#Throughput of TCP Variant
+			th1 = float(totalBits1)/g/(1024*1024)
+
+			#Throughput of CBR
+			th2 = float(totalBits2)/g/(1024*1024)
+			print str(clock) + "\t" + str(th1) +  "\t" + str(th2)
+			#Incrementing the step size
+			clock += g
+			totalBits1 = 0
+			totalBits2 = 0
+
+#Computing the Latency of the TCP Variant
+def latency():
+        tlat1 = 0.0
+        no1 = 0
+        t_send1 = {}
+        t_arr1 = {}
+	clock = 0.0
+	step = 0.5
+	avg_lat1 = 0
+	print "Clock" + '\t'+ "Latency" 
+	trace = open('pra3.tr').readlines()
+        for line in trace:
+                tru = line.split()
+                event = tru[0]
+                time = float(tru[1])
+		source = tru[2]
+                destn = tru[3]
+                fid = tru[7]
+                saddr = tru[8]
+                daddr = tru[9]
+                seq = (tru[10])
+		if fid == '1':
+                        if event == '+' and source == '0':
+				t_send1.update({seq: time})
+                        if event == 'r' and destn == '0':
+                                t_arr1.update({seq: time})
+		if time - clock <= step:
+			pass
+		else:
+			pack1 = {x for x in t_send1.viewkeys() if x in t_arr1.viewkeys()}
+        		for i in pack1:
+                		start = t_send1[i]
+                		end = t_arr1[i]
+                		duration = float(end) - float(start)
+  	              		if duration > 0:
+                        		tlat1 += duration
+                        		no1 += 1
+				if no1 == 0:
+					return 0
+
+			avg_lat1 = (tlat1/no1)*1000
+                	print str(clock) + '\t' + str(avg_lat1) 
+			clock += step
+			t_send1 = {}
+                	t_arr1 = {}
+                	no1 = 0
+			tlat1 = 0
+
+throughput()
+latency()
+
+#Deleting the trace file 
+os.system("rm *.tr")

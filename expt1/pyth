@@ -1,0 +1,86 @@
+#!/usr/bin/python
+import os
+
+#Computing throughput 
+def throughput():
+	trace = open('pra.tr').readlines()
+	lineCount = 0
+	totalBits = 0
+	for line in trace:
+		tru = line.split()
+		event = tru[0] 
+		time = float(tru[1])
+		source = tru[2]
+		size = int(tru[5])
+		fid = tru[7]
+		if fid == '1':
+			if event == '+' and source == '0':
+				if(lineCount == 0):
+					startTime = time
+					lineCount += 1
+			if event == 'r':
+				totalBits += 8 *size
+				endTime = time
+	duration = endTime - startTime
+	th = totalBits/duration/(1024*1024)
+	return str(th)
+
+#Computing Latency
+def latency():
+	tlat = 0.0
+	no = 0
+	t_send = {}
+	t_arr = {}
+	trace = open('pra.tr').readlines()
+	for line in trace:
+                tru = line.split()
+                event = tru[0]
+                time = float(tru[1])
+		source = tru[2]
+		destn = tru[3]
+                fid = tru[7]
+                seq = (tru[10])
+		if fid == '1':
+			if event == '+' and source == '0':
+				t_send.update({seq: time})
+			if event == 'r' and destn == '0':
+				t_arr.update({seq: time}) 
+	pack = {x for x in t_send.viewkeys() if x in t_arr.viewkeys()}	
+	for i in pack:
+		start = t_send[i]
+		end = t_arr[i]
+		duration = end - start
+		if duration > 0:
+			tlat += duration
+			no += 1
+	avg_lat = (tlat/no)*1000 
+	la= str(avg_lat)
+	return la
+
+#Computing droprate
+def droprate():
+        total  = 0
+        drop = 0
+        tlat = 0
+        trace = open('pra.tr').readlines()
+        for line in trace:
+                tru = line.split()
+                event = tru[0]
+                fid = tru[7]
+		if fid == '1':
+			if event == 'd':
+				drop = drop + 1
+			if event == '+':
+				total = total + 1
+	pd = (float(drop)/float(total))*100
+	return str(pd)
+
+t = throughput() 
+l = latency()
+d = droprate()
+
+print  "\t" + t + "\t\t" + l + "\t\t"+ d
+
+#Deleting the trace file
+os.system("rm *.tr")
+
